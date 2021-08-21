@@ -56,13 +56,11 @@ class QuadCurveIllustratorViewModel: ObservableObject {
 struct QuadCurveIllustrator: View {
   @StateObject private var viewModel = QuadCurveIllustratorViewModel()
   @State private var drag: CGPoint = .zero
-  
+  @State private var twoControlPoints = false
   var body: some View {
     
     VStack {
       VStack {
-        Text("Drag: (\(drag.x), \(drag.y)")
-
         Text("Start: (\(viewModel.start.x), \(viewModel.start.y)")
         Text("Control1: (\(viewModel.control1.x), \(viewModel.control1.y)")
         Text("Control2: (\(viewModel.control2.x), \(viewModel.control2.y)")
@@ -71,14 +69,24 @@ struct QuadCurveIllustrator: View {
         
       }
       
+      Toggle("2 CONTROL POINTS?", isOn: $twoControlPoints)
+        .padding()
+      
       GeometryReader { proxy in
         let dim = min(proxy.size.width, proxy.size.height)
         ZStack {
+          if (twoControlPoints) {
           CurveCanvas(start: viewModel.start, control1: viewModel.control1,
                       control2: viewModel.control2, end: viewModel.end)
             .stroke(Color.purple)
             .frame(width: dim, height: dim)
-            .border(Color.orange)
+            .border(Color.orange) }
+          else {
+            QuadCurveCanvas(start: viewModel.start, control: viewModel.control1, end: viewModel.end)
+              .stroke(Color.purple)
+              .frame(width: dim, height: dim)
+              .border(Color.orange)
+          }
           
           // START
           Circle()
@@ -109,7 +117,7 @@ struct QuadCurveIllustrator: View {
                   viewModel.control1.y = (info.location.y + dim / 2) / dim
                 }
             )
-          
+          if twoControlPoints {
           // CONTROL2
           Circle()
             .fill(Color.red)
@@ -124,6 +132,7 @@ struct QuadCurveIllustrator: View {
                   viewModel.control2.y = (info.location.y + dim / 2) / dim
                 }
             )
+          }
           
           
           // END
